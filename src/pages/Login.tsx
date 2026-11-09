@@ -4,11 +4,20 @@ import { useAuth } from '../data/AuthContext'
 import { Button, ErrorBox, Field, inputCls } from '../components/Ui'
 import { isConfigured } from '../lib/supabase'
 
+type Mode = 'login' | 'reset' | 'sent'
+/** Recuperacao por e-mail so funciona com SMTP configurado no Supabase (VITE_EMAIL_RESET=1). */
+const EMAIL_RESET = import.meta.env.VITE_EMAIL_RESET === '1'
+
 export default function Login() {
-  const { session, signIn } = useAuth()
+  const { session, signIn, requestPasswordReset } = useAuth()
+  const [mode, setMode] = useState<Mode>('login')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [err, setErr] = useState<string | null>(null)
+  const [err, setErr] = useState<string | null>(() => {
+    const m = sessionStorage.getItem('auth-msg') // erro de link de recuperacao expirado
+    if (m) sessionStorage.removeItem('auth-msg')
+    return m
+  })
   const [busy, setBusy] = useState(false)
 
   if (session) return <Navigate to="/" replace />
@@ -17,8 +26,14 @@ export default function Login() {
     e.preventDefault()
     setBusy(true)
     setErr(null)
-    const msg = await signIn(email, password)
-    if (msg) setErr(msg)
+    if (mode === 'reset') {
+      const msg = await requestPasswordReset(email)
+      if (msg) setErr(msg)
+      else setMode('sent')
+    } else {
+      const msg = await signIn(email, password)
+      if (msg) setErr(msg)
+    }
     setBusy(false)
   }
 
@@ -38,21 +53,43 @@ export default function Login() {
         style={{ paddingBottom: 'calc(1.75rem + env(safe-area-inset-bottom))' }}
       >
         {!isConfigured && <ErrorBox>Configuração do banco ausente (VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY).</ErrorBox>}
-        <Field label="E-mail" htmlFor="email">
-          <input
-            id="email" name="email" type="email" className={inputCls} autoComplete="username" inputMode="email"
-            autoCapitalize="none" autoCorrect="off" spellCheck={false} required
-            value={email} onChange={(e) => setEmail(e.target.value)}
-          />
-        </Field>
-        <Field label="Senha" htmlFor="password">
-          <input
-            id="password" name="password" type="password" className={inputCls} autoComplete="current-password"
-            required value={password} onChange={(e) => setPassword(e.target.value)}
-          />
-        </Field>
-        {err && <ErrorBox>{err}</ErrorBox>}
-        <Button type="submit" full loading={busy} className="min-h-14 text-lg">Entrar</Button>
+
+        {mode === 'sent' ? (
+          <>
+            <div role="status" className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-900">
+              Se este e-mail estiver autorizado, você receberá um link em instantes para criar ou trocar a senha. Confira também a caixa de spam. O link vale por pouco tempo.
+            </div>
+            <Button full variant="secondary" onClick={() => { setMode('login'); setErr(null) }}>Voltar ao login</Button>
+          </>
+        ) : (
+          <>
+            <Field label="E-mail" htmlFor="email">
+              <input
+                id="email" name="email" type="email" className={inputCls} autoComplete="username" inputMode="email"
+                autoCapitalize="none" autoCorrect="off" spellCheck={false} required
+                value={email} onChange={(e) => setEmail(e.target.value)}
+              />
+            </Field>
+            {mode === 'login' && (
+              <Field label="Senha" htmlFor="password">
+                <input
+                  id="password" name="password" type="password" className={inputCls} autoComplete="current-password"
+                  required value={password} onChange={(e) => setPassword(e.target.value)}
+                />
+              </Field>
+            )}
+            {mode === 'reset' && <p className="text-sm text-stone-600">Digite o e-mail cadastrado. Enviaremos um link para você criar a sua senha.</p>}
+            {err && <ErrorBox>{err}</ErrorBox>}
+            <Button type="submit" full loading={busy} className="min-h-14 text-lg">{mode === 'login' ? 'Entrar' : 'Enviar link'}</Button>
+            {EMAIL_RESET ? (
+              <Button full variant="ghost" onClick={() => { setMode(mode === 'login' ? 'reset' : 'login'); setErr(null) }}>
+                {mode === 'login' ? 'Esqueci minha senha / primeiro acesso' : 'Voltar ao login'}
+              </Button>
+            ) : (
+              <p className="px-2 text-center text-sm text-stone-600">Primeiro acesso ou esqueceu a senha? Peça um novo link de acesso para quem administra o sistema.</p>
+            )}
+          </>
+        )}
       </form>
     </div>
   )

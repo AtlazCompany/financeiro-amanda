@@ -153,16 +153,52 @@ async function rpc(name: string, p: Record<string, unknown>): Promise<Res> {
 }
 
 const session = { access_token: 'mock', refresh_token: 'mock', user: { id: 'mock', email: 'amanda@financeiro-amanda.app' } }
+type AuthCb = (event: string, s: typeof session | null) => void
+const listeners = new Set<AuthCb>()
+const isLoggedOut = () => localStorage.getItem('mock-logout') === '1'
+const notify = () => listeners.forEach((cb) => cb(isLoggedOut() ? 'SIGNED_OUT' : 'SIGNED_IN', isLoggedOut() ? null : session))
+// Credencial FALSA, valida apenas neste backend de teste local.
+const MOCK_PASSWORD = 'senha-de-teste-mock'
 export const isConfigured = true
 export const supabase = {
   from: (t: string) => new Query(t),
   rpc,
   auth: {
     // localStorage['mock-logout']='1' mostra a tela de login (so para teste visual)
-    getSession: async () => ({ data: { session: localStorage.getItem('mock-logout') === '1' ? null : session } }),
-    onAuthStateChange: () => ({ data: { subscription: { unsubscribe() {} } } }),
-    signInWithPassword: async () => ({ error: null }),
-    signOut: async () => ({ error: null }),
+    getSession: async () => ({ data: { session: isLoggedOut() ? null : session } }),
+    onAuthStateChange: (cb: AuthCb) => {
+      listeners.add(cb)
+      return { data: { subscription: { unsubscribe: () => listeners.delete(cb) } } }
+    },
+    signInWithPassword: async ({ password }: { email: string; password: string }) => {
+      if (password !== MOCK_PASSWORD) return { error: { message: 'Invalid login credentials' } }
+      localStorage.removeItem('mock-logout'); notify()
+      return { error: null }
+    },
+    signOut: async (opts?: { scope?: string }) => {
+      if (opts?.scope === 'others') return { error: null } // mantem a sessao atual
+      localStorage.setItem('mock-logout', '1'); notify(); return { error: null }
+    },
+    resetPasswordForEmail: async (email: string, opts?: { redirectTo?: string }) => {
+      const log = JSON.parse(localStorage.getItem('mock-reset-requests') ?? '[]') as unknown[]
+      log.push({ email, redirectTo: opts?.redirectTo ?? null }); localStorage.setItem('mock-reset-requests', JSON.stringify(log))
+      return { error: null }
+    },
+    verifyOtp: async ({ token_hash }: { token_hash: string; type: string }) => {
+      if (token_hash === 'expired') return { error: { message: 'Token has expired or is invalid' } }
+      localStorage.removeItem('mock-logout'); notify()
+      return { error: null }
+    },
+    setSession: async ({ access_token }: { access_token: string; refresh_token: string }) => {
+      if (access_token === 'expired') return { error: { message: 'invalid' } }
+      localStorage.removeItem('mock-logout'); notify()
+      return { error: null }
+    },
+    updateUser: async ({ password }: { password: string }) => {
+      if (password === MOCK_PASSWORD) return { error: { message: 'New password should be different from the old password.' } }
+      localStorage.setItem('mock-password-updated', '1')
+      return { error: null }
+    },
   },
 }
 export function resetMock() { db = seed(); save() }

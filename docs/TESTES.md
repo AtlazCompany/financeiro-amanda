@@ -88,3 +88,34 @@ Dados anteriores preservados (id, total, parcelas); vendas antigas ficam com cus
 
 ## Pendências desta rodada
 - Homologação em **iPhone físico/Safari** (teclado, safe areas, seletor de datas, modo standalone) continua pendente.
+
+---
+
+# Rodada 3 — Login definitivo (branch `feature/login-definitivo`, 10/11/2026)
+
+**Nenhuma alteração em produção.** Só consultas de leitura no Supabase; o app publicado e a conta provisória continuam como estavam.
+
+| Verificação | Resultado |
+|---|---|
+| `npm test` (inclui `auth.test.ts`: link de recuperação e regras de senha) | **60/60** |
+| `npm run test:email-swap` — troca de e-mail em Postgres isolado | **23/23** |
+| `npm run test:migration` (regressão) · `tsc -b` · build de produção | ok |
+
+Troca de e-mail (isolada): mesmo id de usuária; e-mail normalizado; identidade atualizada; senha provisória invalidada (não confere mais); sessões/refresh tokens encerrados; `allowed_emails` só com o e-mail novo; e-mail provisório e qualquer outro **bloqueados** no cadastro; dados financeiros, perfil e configurações intactos e vinculados ao mesmo id; entradas inválidas (e-mail ruim, igual ao provisório, placeholder, 2ª execução) abortam sem alterar nada; rollback restaura.
+
+Interface (backend de teste local, credencial **falsa**): senha errada → “E-mail ou senha incorretos”; login; sair; rota protegida → login; “Esqueci minha senha” (resposta genérica, `redirectTo` correto); link de recuperação válido → “Crie a sua senha” (token removido da URL; senha curta/diferente recusadas; senha igual à anterior recusada; salvar → entra no app com as outras sessões encerradas); link expirado → mensagem no login; `/nova-senha` sem sessão → login.
+
+Produção (somente leitura / sem efeito): `recover` para e-mail inexistente responde 200 sem revelar nada; cadastro público segue bloqueado.
+
+Não verificável daqui (depende de ações no painel Supabase): Site URL/Redirect URLs e SMTP — ver `docs/LOGIN-DEFINITIVO.md`.
+
+## Rodada 4 — preparação final do login definitivo (10/11/2026) — sem alterar produção
+
+- `email-swap-check` ampliado: **44 verificações** (modelo + o **arquivo final local** com o e-mail definitivo, executado sem alterações em banco isolado): mesmo id, dados intactos, senha provisória e provisório invalidados, sessões encerradas, `allowed_emails` só com o e-mail novo, **isolamento (RLS)** — a usuária continua vendo tudo e outra usuária não vê nem altera nada —, entradas inválidas abortam, rollback restaura.
+- Novo `npm run verify:login` (somente API pública): detecta Site URL/Redirect URLs sem efeito colateral. Resultado em produção hoje: **Site URL = `http://localhost:3000` e redirect do site não permitido (2 FAIL)** — exige a configuração manual descrita em `docs/LOGIN-DEFINITIVO.md`; cadastro público bloqueado e recuperação genérica (PASS).
+- Branch `feature/login-definitivo` contém a `master` (merge fast-forward possível); 60 testes unitários, migração isolada e build de produção passando.
+
+## Rodada 5 — ativação por link, sem SMTP (10/11/2026) — sem alterar produção
+
+- `npm run test:first-access` (Admin falso): gera `recovery` com `redirectTo` do site; modo oficial devolve o `action_link`; modo anti-prévia usa o `hashed_token`; **aborta** se a troca de e-mail não foi feita, se o e-mail é de outro ID, se há mais de 1 usuária ou se o Supabase falha (sem vazar detalhes); o script **não imprime nem grava o link** (só copia) e a chave só vem de variável de ambiente (mascarada em erros).
+- Interface (backend local): login sem “Esqueci minha senha” (mostra “Peça um novo link”); `#/ativar` **não consome o link ao abrir** (continua deslogada) — só ao tocar no botão; depois “Crie a sua senha” → entra no app; link vencido e link sem código mostram mensagens claras. 60 testes unitários e builds seguem verdes.

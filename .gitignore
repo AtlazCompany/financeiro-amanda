@@ -24,3 +24,6 @@ dist-ssr
 *.sw?
 
 dist-mock
+
+# arquivos locais com dados pessoais (e-mail real)
+supabase/local/

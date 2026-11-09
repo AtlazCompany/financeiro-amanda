@@ -5,7 +5,7 @@ import base from './vite.config'
 
 export default mergeConfig(base, {
   resolve: {
-    alias: [{ find: /^\.\.\/lib\/supabase$/, replacement: path.resolve(__dirname, 'src/dev/mockSupabase.ts') }],
+    alias: [{ find: /^\.{1,2}\/(lib\/)?supabase(\.ts)?$|^\.\.?\/lib\/supabase(\.ts)?$/, replacement: path.resolve(__dirname, 'src/dev/mockSupabase.ts') }],
   },
   build: { outDir: 'dist-mock' },
 })
