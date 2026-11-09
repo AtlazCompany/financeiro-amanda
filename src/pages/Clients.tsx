@@ -51,15 +51,15 @@ export default function Clients() {
               const s = sums.get(c.id)
               return (
                 <Link key={c.id} to={`/clientes/${c.id}`} className="block">
-                  <Card className="active:bg-stone-50">
+                  <Card className="active:bg-brand-50">
                     <div className="flex items-start justify-between gap-3">
                       <p className="truncate text-base font-bold text-stone-900">{c.name}</p>
                       {s && s.overdueCount > 0 && <Badge tone="red">{s.overdueCount} atrasada(s)</Badge>}
                     </div>
                     <div className="mt-2 grid grid-cols-3 gap-2 text-sm">
-                      <div><p className="text-xs text-stone-500">Comprou</p><p className="font-bold">{formatBRL(s?.totalSoldCents ?? 0)}</p></div>
-                      <div><p className="text-xs text-brand-700">Pagou</p><p className="font-bold text-brand-700">{formatBRL(s?.paidCents ?? 0)}</p></div>
-                      <div><p className="text-xs text-stone-500">Deve</p><p className={`font-bold ${(s?.overdueCents ?? 0) > 0 ? 'text-red-600' : ''}`}>{formatBRL(s?.owedCents ?? 0)}</p></div>
+                      <div><p className="text-xs text-stone-600">Comprou</p><p className="font-bold">{formatBRL(s?.totalSoldCents ?? 0)}</p></div>
+                      <div><p className="text-xs text-emerald-700">Pagou</p><p className="font-bold text-emerald-700">{formatBRL(s?.paidCents ?? 0)}</p></div>
+                      <div><p className="text-xs text-stone-600">Deve</p><p className={`font-bold ${(s?.overdueCents ?? 0) > 0 ? 'text-red-700' : ''}`}>{formatBRL(s?.owedCents ?? 0)}</p></div>
                     </div>
                   </Card>
                 </Link>

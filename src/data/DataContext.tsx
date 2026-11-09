@@ -47,7 +47,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
     try {
       const [clients, sales, installments, bills, st] = await Promise.all([
         fetchAll<Client>('clients', 'id,name,whatsapp,notes', 'name'),
-        fetchAll<Sale>('sales', 'id,client_id,description,sale_date,total_cents,installments_count,first_due_date', 'sale_date'),
+        fetchAll<Sale>('sales', 'id,client_id,description,sale_date,total_cents,installments_count,first_due_date,quantity,unit_cost_cents,unit_price_cents,discount_cents', 'sale_date'),
         fetchAll<Installment>('installments', 'id,sale_id,number,due_date,amount_cents,paid_at', 'due_date'),
         fetchAll<Bill>('supplier_bills', 'id,order_number,order_date,amount_cents,due_date,paid_at,notes', 'due_date'),
         supabase.from('financial_settings').select('opening_balance_cents,opening_balance_date,alert_days').maybeSingle(),

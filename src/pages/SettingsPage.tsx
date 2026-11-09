@@ -65,16 +65,16 @@ export default function SettingsPage() {
             <li className="flex items-start gap-3"><span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-100 font-bold text-brand-800">3</span><span>Escolha <b>Adicionar à Tela de Início</b> <SquarePlus className="inline h-4 w-4" />.</span></li>
             <li className="flex items-start gap-3"><span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-100 font-bold text-brand-800">4</span><span>Confirme em <b>Adicionar</b>. Pronto: abra pelo ícone “Financeiro Amanda”.</span></li>
           </ol>
-          <p className="mt-3 text-xs text-stone-500">Na primeira vez que abrir pelo ícone, entre de novo com e-mail e senha — depois a sessão fica salva.</p>
+          <p className="mt-3 text-xs text-stone-600">Na primeira vez que abrir pelo ícone, entre de novo com e-mail e senha — depois a sessão fica salva.</p>
         </Card>
 
         <SectionTitle>Dados</SectionTitle>
         <Link to="/ajustes/importar" className="block">
-          <Card className="flex items-center gap-3 active:bg-stone-50">
+          <Card className="flex items-center gap-3 active:bg-brand-50">
             <FileSpreadsheet className="h-6 w-6 text-brand-800" />
             <div>
               <p className="font-bold text-stone-900">Importar da planilha</p>
-              <p className="text-sm text-stone-500">Traz vendas e boletos do Excel (opcional)</p>
+              <p className="text-sm text-stone-600">Traz vendas e boletos do Excel (opcional)</p>
             </div>
           </Card>
         </Link>

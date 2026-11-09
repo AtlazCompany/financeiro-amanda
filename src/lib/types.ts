@@ -16,6 +16,14 @@ export interface Sale {
   total_cents: number
   installments_count: number
   first_due_date: ISODate
+  /** Quantidade vendida (vendas antigas: 1). */
+  quantity: number
+  /** Custo unitario de compra; null = "custo nao informado" (nunca assumir zero). */
+  unit_cost_cents: number | null
+  /** Preco unitario de venda; null em vendas antigas (so o total foi registrado). */
+  unit_price_cents: number | null
+  /** Desconto total da venda, em centavos. */
+  discount_cents: number
 }
 
 export interface Installment {

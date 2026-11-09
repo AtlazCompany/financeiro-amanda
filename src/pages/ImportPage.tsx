@@ -4,7 +4,7 @@ import { AlertTriangle, Upload } from 'lucide-react'
 import { Button, Card, ErrorBox, useToast } from '../components/Ui'
 import { Page, PageHeader } from '../components/Layout'
 import { useData } from '../data/DataContext'
-import { addBill, addClient, createSale } from '../data/actions'
+import { addBill, addClient, createSaleTotalOnly } from '../data/actions'
 import { installmentsFor, parseWorkbookFile, planImport, type ParsedWorkbook } from '../lib/importer'
 
 const norm = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim()
@@ -49,7 +49,7 @@ export default function ImportPage() {
       let n = 0
       for (const s of plan.salesToAdd) {
         setProgress(`Importando vendas ${++n}/${plan.salesToAdd.length}…`)
-        await createSale({
+        await createSaleTotalOnly({
           client_id: ids.get(norm(s.clientName))!, description: s.description, sale_date: s.sale_date,
           total_cents: s.total_cents, first_due_date: s.first_due_date, installments: installmentsFor(s),
         })
@@ -110,7 +110,7 @@ export default function ImportPage() {
                   Confirmo que estes são dados reais da Amanda (não de teste).
                 </label>
                 <Button full disabled={!real} loading={busy} onClick={run}>Importar agora</Button>
-                {busy && <p className="text-center text-sm text-stone-500">{progress}</p>}
+                {busy && <p className="text-center text-sm text-stone-600">{progress}</p>}
               </>
             )}
           </div>

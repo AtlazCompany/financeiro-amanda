@@ -23,15 +23,18 @@ export default function Login() {
   }
 
   return (
-    <div className="flex min-h-dvh flex-col bg-brand-900" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
-      <div className="flex flex-1 flex-col items-center justify-center px-6 pb-6 pt-10 text-white">
-        <img src="/icon.svg" alt="" className="h-24 w-24 rounded-[1.4rem] shadow-xl" />
-        <h1 className="mt-5 text-3xl font-extrabold">Financeiro Amanda</h1>
-        <p className="mt-1 text-brand-100">Vendas, parcelas e boletos em um só lugar</p>
+    <div className="relative flex min-h-dvh flex-col overflow-hidden bg-brand-100" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
+      {/* decoracao rosa suave (apenas CSS, sem imagens) */}
+      <div aria-hidden className="pointer-events-none absolute -left-16 -top-20 h-72 w-72 rounded-full bg-brand-300/45 blur-3xl" />
+      <div aria-hidden className="pointer-events-none absolute -right-20 top-40 h-64 w-64 rounded-full bg-brand-200/80 blur-3xl" />
+      <div className="relative flex flex-1 flex-col items-center justify-center px-6 pb-8 pt-12 text-center">
+        <img src="/icon.svg" alt="" className="h-24 w-24 rounded-[1.7rem] shadow-pop" />
+        <h1 className="mt-6 text-[2.4rem] leading-tight text-brand-800">Financeiro Amanda</h1>
+        <p className="mt-2 max-w-xs text-brand-800/80">Vendas, lucro, parcelas e boletos com a elegância que o seu negócio merece.</p>
       </div>
       <form
         onSubmit={submit}
-        className="mx-auto w-full max-w-xl space-y-4 rounded-t-3xl bg-white px-6 pt-7"
+        className="anim-rise relative mx-auto w-full max-w-xl space-y-4 rounded-t-[2rem] bg-paper px-6 pt-8 shadow-[0_-12px_40px_-20px_rgba(113,61,84,0.35)]"
         style={{ paddingBottom: 'calc(1.75rem + env(safe-area-inset-bottom))' }}
       >
         {!isConfigured && <ErrorBox>Configuração do banco ausente (VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY).</ErrorBox>}
@@ -49,7 +52,7 @@ export default function Login() {
           />
         </Field>
         {err && <ErrorBox>{err}</ErrorBox>}
-        <Button type="submit" full loading={busy}>Entrar</Button>
+        <Button type="submit" full loading={busy} className="min-h-14 text-lg">Entrar</Button>
       </form>
     </div>
   )

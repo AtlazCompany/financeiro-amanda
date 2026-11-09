@@ -57,13 +57,13 @@ export default function ClientDetail() {
   return (
     <>
       <PageHeader title={client.name} subtitle={client.whatsapp ?? 'Sem WhatsApp'} back="/clientes"
-        right={<Link to={`/clientes/${client.id}/editar`} aria-label="Editar cliente" className="flex h-11 w-11 items-center justify-center rounded-full active:bg-white/15"><Pencil className="h-5 w-5" /></Link>} />
+        right={<Link to={`/clientes/${client.id}/editar`} aria-label="Editar cliente" className="flex h-11 w-11 items-center justify-center rounded-full text-brand-800 active:bg-white/70"><Pencil className="h-5 w-5" /></Link>} />
       <Page>
         <Card>
           <div className="grid grid-cols-3 gap-2 text-center">
-            <div><p className="text-xs text-stone-500">Comprou</p><p className="font-extrabold">{formatBRL(sums?.totalSoldCents ?? 0)}</p></div>
-            <div><p className="text-xs text-brand-700">Pagou</p><p className="font-extrabold text-brand-700">{formatBRL(sums?.paidCents ?? 0)}</p></div>
-            <div><p className="text-xs text-stone-500">Deve</p><p className={`font-extrabold ${(sums?.overdueCents ?? 0) > 0 ? 'text-red-600' : ''}`}>{formatBRL(sums?.owedCents ?? 0)}</p></div>
+            <div><p className="text-xs text-stone-600">Comprou</p><p className="font-extrabold">{formatBRL(sums?.totalSoldCents ?? 0)}</p></div>
+            <div><p className="text-xs text-emerald-700">Pagou</p><p className="font-extrabold text-emerald-700">{formatBRL(sums?.paidCents ?? 0)}</p></div>
+            <div><p className="text-xs text-stone-600">Deve</p><p className={`font-extrabold ${(sums?.overdueCents ?? 0) > 0 ? 'text-red-700' : ''}`}>{formatBRL(sums?.owedCents ?? 0)}</p></div>
           </div>
           {(sums?.overdueCount ?? 0) > 0 && (
             <p className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-center text-sm font-semibold text-red-700">
@@ -85,7 +85,7 @@ export default function ClientDetail() {
           <Button onClick={() => navigate(`/vendas/nova?cliente=${client.id}`)}><Plus className="h-5 w-5" /> Nova venda</Button>
         </div>
 
-        <h2 className="mb-2 mt-6 px-1 text-sm font-bold uppercase tracking-wide text-stone-500">Histórico de vendas</h2>
+        <h2 className="mb-2 mt-7 px-1 text-xl text-brand-800">Histórico de vendas</h2>
         {mySales.length === 0 ? (
           <EmptyState title="Nenhuma venda para esta cliente" />
         ) : (
@@ -95,11 +95,11 @@ export default function ClientDetail() {
               const st = saleStatus(insts, today)
               return (
                 <Link key={s.id} to={`/vendas/${s.id}`} className="block">
-                  <Card className="active:bg-stone-50">
+                  <Card className="active:bg-brand-50">
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
                         <p className="truncate font-bold text-stone-900">{s.description}</p>
-                        <p className="text-xs text-stone-500">{formatBR(s.sale_date)}</p>
+                        <p className="text-xs text-stone-600">{formatBR(s.sale_date)}</p>
                       </div>
                       <div className="text-right">
                         <p className="font-extrabold">{formatBRL(s.total_cents)}</p>
@@ -110,7 +110,7 @@ export default function ClientDetail() {
                       {insts.map((i) => {
                         const is = installmentStatus(i, today)
                         return (
-                          <span key={i.id} className={`rounded-lg px-2 py-1 text-xs font-semibold ${is === 'paid' ? 'bg-brand-100 text-brand-800' : is === 'overdue' ? 'bg-red-100 text-red-700' : 'bg-stone-200 text-stone-700'}`}>
+                          <span key={i.id} className={`rounded-lg px-2 py-1 text-xs font-semibold ${is === 'paid' ? 'bg-emerald-100 text-emerald-800' : is === 'overdue' ? 'bg-red-100 text-red-800' : 'bg-stone-200 text-stone-700'}`}>
                             {i.number}/{s.installments_count} · {formatBRL(i.amount_cents)}
                           </span>
                         )
@@ -124,7 +124,7 @@ export default function ClientDetail() {
         )}
 
         <div className="mt-8">
-          <Button full variant="ghost" className="text-red-600" onClick={() => { setErr(null); setConfirmDel(true) }}>
+          <Button full variant="ghost" className="text-red-700" onClick={() => { setErr(null); setConfirmDel(true) }}>
             <Trash2 className="h-5 w-5" /> Excluir cliente
           </Button>
         </div>

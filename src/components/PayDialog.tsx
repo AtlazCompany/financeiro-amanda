@@ -73,7 +73,7 @@ export function PayDialog({ open, onClose, title, amountCents, currentPaidAt, ki
               {editing ? 'Salvar nova data' : 'Confirmar pagamento'}
             </Button>
             {editing && (
-              <Button full variant="ghost" className="text-red-600" onClick={() => setConfirmUndo(true)}>
+              <Button full variant="ghost" className="text-red-700" onClick={() => setConfirmUndo(true)}>
                 Foi engano — desfazer pagamento
               </Button>
             )}

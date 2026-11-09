@@ -36,11 +36,15 @@ function NavItem({ to, label, icon: Icon, end }: (typeof items)[number]) {
       to={to}
       end={end}
       className={({ isActive }) =>
-        `flex min-h-14 min-w-11 flex-col items-center justify-center gap-0.5 text-[11px] font-semibold ${isActive ? 'text-brand-800' : 'text-stone-500'}`
+        `flex min-h-14 min-w-11 flex-col items-center justify-center gap-0.5 text-[11px] font-semibold transition-colors ${isActive ? 'text-brand-600' : 'text-stone-600'}`
       }
     >
-      <Icon className="h-6 w-6" strokeWidth={2.2} />
-      {label}
+      {({ isActive }) => (
+        <>
+          <Icon className="h-6 w-6" strokeWidth={isActive ? 2 : 1.6} />
+          {label}
+        </>
+      )}
     </NavLink>
   )
 }
@@ -56,7 +60,7 @@ export function AppShell() {
       {!keyboard && (
         <nav
           aria-label="Navegação principal"
-          className="fixed inset-x-0 bottom-0 z-40 border-t border-stone-200 bg-white/95 backdrop-blur"
+          className="fixed inset-x-0 bottom-0 z-40 border-t border-brand-100 bg-white/95 backdrop-blur"
           style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
         >
           <div className="mx-auto grid max-w-xl grid-cols-5 items-center px-2">
@@ -67,9 +71,9 @@ export function AppShell() {
                 type="button"
                 aria-label="Nova venda"
                 onClick={() => navigate('/vendas/nova')}
-                className="-mt-7 flex h-16 w-16 items-center justify-center rounded-full bg-brand-800 text-white shadow-lg ring-4 ring-stone-100 transition active:scale-95 active:bg-brand-900"
+                className="-mt-7 flex h-16 w-16 items-center justify-center rounded-full bg-brand-600 text-white shadow-pop ring-4 ring-paper transition active:scale-95 active:bg-brand-700"
               >
-                <Plus className="h-8 w-8" strokeWidth={2.6} />
+                <Plus className="h-8 w-8" strokeWidth={2.2} />
               </button>
             </div>
             <NavItem {...items[2]} />
@@ -81,28 +85,29 @@ export function AppShell() {
   )
 }
 
-/** Cabecalho verde que respeita a area segura (status bar do iPhone). */
+/** Cabecalho rosa suave com titulo em serifa; respeita a area segura do iPhone. */
 export function PageHeader({
-  title, subtitle, back, right, children,
-}: { title: string; subtitle?: string; back?: string | boolean; right?: ReactNode; children?: ReactNode }) {
+  title, subtitle, back, right, children, large,
+}: { title: string; subtitle?: string; back?: string | boolean; right?: ReactNode; children?: ReactNode; large?: boolean }) {
   const navigate = useNavigate()
   return (
-    <header className="bg-brand-900 text-white" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
-      <div className="mx-auto max-w-xl px-4 pb-4 pt-3">
+    <header className="relative overflow-hidden border-b border-brand-100 bg-brand-100/70" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
+      <div aria-hidden className="pointer-events-none absolute -right-10 -top-12 h-44 w-44 rounded-full bg-brand-200/60 blur-2xl" />
+      <div className="relative mx-auto max-w-xl px-4 pb-4 pt-3">
         <div className="flex min-h-11 items-center gap-1">
           {back && (
             <button
               type="button"
               aria-label="Voltar"
               onClick={() => (typeof back === 'string' ? navigate(back) : navigate(-1))}
-              className="-ml-2 flex h-11 w-11 items-center justify-center rounded-full active:bg-white/15"
+              className="-ml-2 flex h-11 w-11 items-center justify-center rounded-full text-brand-800 active:bg-white/70"
             >
               <ChevronLeft className="h-7 w-7" />
             </button>
           )}
           <div className="min-w-0 flex-1">
-            <h1 className="truncate text-xl font-bold leading-tight">{title}</h1>
-            {subtitle && <p className="truncate text-sm text-brand-100/90">{subtitle}</p>}
+            <h1 className={`truncate leading-tight text-brand-800 ${large ? 'text-[2rem]' : 'text-2xl'}`}>{title}</h1>
+            {subtitle && <p className="truncate text-sm text-brand-700">{subtitle}</p>}
           </div>
           {right}
         </div>
@@ -113,5 +118,5 @@ export function PageHeader({
 }
 
 export function Page({ children }: { children: ReactNode }) {
-  return <main className="mx-auto max-w-xl px-4 pt-4">{children}</main>
+  return <main className="anim-rise mx-auto max-w-xl px-4 pt-5">{children}</main>
 }

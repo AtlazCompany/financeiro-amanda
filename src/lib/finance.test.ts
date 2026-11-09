@@ -96,7 +96,7 @@ describe('status', () => {
 let seq = 0
 function mkSale(client: string, sale_date: string, total: number, count: number, first: string, paid: (string | null)[]) {
   const id = `s${++seq}`
-  const sale: Sale = { id, client_id: client, description: 'x', sale_date, total_cents: total, installments_count: count, first_due_date: first }
+  const sale: Sale = { id, client_id: client, description: 'x', sale_date, total_cents: total, installments_count: count, first_due_date: first, quantity: 1, unit_cost_cents: null, unit_price_cents: null, discount_cents: 0 }
   const insts: Installment[] = splitInstallments(total, count, first).map((d, i) => ({
     id: `${id}-${d.number}`, sale_id: id, number: d.number, due_date: d.due_date, amount_cents: d.amount_cents, paid_at: paid[i] ?? null,
   }))

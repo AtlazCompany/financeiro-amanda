@@ -15,7 +15,7 @@ import type { Bill, BillStatus } from '../lib/types'
 type Filter = 'all' | BillStatus
 
 const accent: Record<BillStatus, string> = {
-  paid: 'border-l-brand-500',
+  paid: 'border-l-emerald-500',
   overdue: 'border-l-red-500 bg-red-50/60',
   soon: 'border-l-amber-400 bg-amber-50/70',
   pending: 'border-l-stone-300',
@@ -68,7 +68,7 @@ export default function Bills() {
           {chips.map((c) => (
             <button
               key={c.key} type="button" role="tab" aria-selected={filter === c.key} onClick={() => setFilter(c.key)}
-              className={`min-h-11 shrink-0 rounded-full px-3.5 text-sm font-bold ${filter === c.key ? 'bg-white text-brand-900' : 'bg-white/15 text-white'}`}
+              className={`min-h-11 shrink-0 rounded-full px-3.5 text-sm font-bold ${filter === c.key ? 'bg-brand-600 text-white shadow-pop' : 'border border-brand-200 bg-white text-brand-800'}`}
             >
               {c.label} {counts[c.key] > 0 && <span className="opacity-70">({counts[c.key]})</span>}
             </button>
@@ -94,9 +94,9 @@ export default function Bills() {
                     <div className="min-w-0">
                       <p className="truncate text-base font-bold text-stone-900">Pedido {b.order_number}</p>
                       <p className="text-sm text-stone-600">Vence em {formatBR(b.due_date)}</p>
-                      {!b.paid_at && <p className={`text-xs font-semibold ${st === 'overdue' ? 'text-red-600' : 'text-stone-500'}`}>{dueText(b.due_date, today)}</p>}
-                      {b.order_date && <p className="text-xs text-stone-400">Pedido de {formatBR(b.order_date)}</p>}
-                      {b.notes && <p className="mt-1 text-xs italic text-stone-500">{b.notes}</p>}
+                      {!b.paid_at && <p className={`text-xs font-semibold ${st === 'overdue' ? 'text-red-700' : 'text-stone-600'}`}>{dueText(b.due_date, today)}</p>}
+                      {b.order_date && <p className="text-xs text-stone-600">Pedido de {formatBR(b.order_date)}</p>}
+                      {b.notes && <p className="mt-1 text-xs italic text-stone-600">{b.notes}</p>}
                     </div>
                     <div className="shrink-0 text-right">
                       <p className="text-lg font-extrabold text-stone-900">{formatBRL(b.amount_cents)}</p>

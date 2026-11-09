@@ -64,7 +64,7 @@ export default function Payments() {
                     <div className="min-w-0">
                       <p className="truncate text-base font-bold text-stone-900">{client?.name ?? 'Cliente'}</p>
                       <p className="truncate text-sm text-stone-600">{sale?.description} · Parcela {i.number}/{sale?.installments_count}</p>
-                      <p className={`text-xs font-semibold ${st === 'overdue' ? 'text-red-600' : 'text-stone-500'}`}>{formatBR(i.due_date)} · {dueText(i.due_date, today)}</p>
+                      <p className={`text-xs font-semibold ${st === 'overdue' ? 'text-red-700' : 'text-stone-600'}`}>{formatBR(i.due_date)} · {dueText(i.due_date, today)}</p>
                     </div>
                     <div className="shrink-0 text-right">
                       <p className="text-lg font-extrabold">{formatBRL(i.amount_cents)}</p>

@@ -8,6 +8,7 @@ import { useLookups } from '../data/useLookups'
 import { formatBR, todayISO } from '../lib/dates'
 import { saleStatus } from '../lib/finance'
 import { formatBRL } from '../lib/money'
+import { formatPct, saleProfit } from '../lib/profit'
 
 const norm = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase()
 
@@ -56,14 +57,24 @@ export default function Sales() {
               const insts = instBySale.get(s.id) ?? []
               const paid = insts.filter((i) => i.paid_at).length
               const st = saleStatus(insts, today)
+              const pr = saleProfit(s)
               return (
                 <Link key={s.id} to={`/vendas/${s.id}`} className="block">
-                  <Card className="active:bg-stone-50">
+                  <Card className="transition active:bg-brand-50">
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
                         <p className="truncate text-base font-bold text-stone-900">{clientById.get(s.client_id)?.name ?? 'Cliente'}</p>
                         <p className="truncate text-sm text-stone-600">{s.description}</p>
-                        <p className="mt-1 text-xs text-stone-500">{formatBR(s.sale_date)} · {paid}/{s.installments_count} parcela(s) paga(s)</p>
+                        <p className="mt-1 text-xs text-stone-600">{formatBR(s.sale_date)} · {paid}/{s.installments_count} parcela(s) paga(s)</p>
+                        <p className="mt-1 text-xs font-semibold">
+                          {pr.costKnown ? (
+                            <span className={pr.isLoss ? 'text-red-700' : 'text-emerald-700'}>
+                              {pr.isLoss ? 'Prejuízo' : 'Lucro'} {formatBRL(Math.abs(pr.profitCents ?? 0))} · {formatPct(pr.marginPct)}
+                            </span>
+                          ) : (
+                            <span className="text-stone-600">Custo não informado</span>
+                          )}
+                        </p>
                       </div>
                       <div className="shrink-0 text-right">
                         <p className="text-base font-extrabold text-stone-900">{formatBRL(s.total_cents)}</p>

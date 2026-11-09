@@ -1,6 +1,6 @@
-﻿# Financeiro Amanda
+# Financeiro Amanda
 
-Sistema web (PWA) para a revendedora Amanda controlar **clientes, vendas parceladas, boletos do Boticário e caixa** — pensado para o **iPhone (Safari)**.
+Sistema web (PWA) para a revendedora Amanda controlar **clientes, vendas parceladas, custo e lucro, boletos do Boticário e caixa** — pensado para o **iPhone (Safari)**, com visual premium rosa.
 
 React + Vite + TypeScript · Tailwind CSS · Lucide · Supabase (PostgreSQL + Auth + RLS) · Render Static Site. Sem backend próprio.
 
@@ -24,6 +24,28 @@ Tudo em **centavos inteiros**; datas ISO. Código em `src/lib/finance.ts` (testa
 - **Parcelas atrasadas nunca são dinheiro** (nem na projeção).
 - **Alerta de caixa**: para cada boleto em aberto, em ordem cronológica: caixa de hoje + parcelas ainda a vencer até o vencimento dele − todos os boletos em aberto até aquele dia. Negativo ⇒ alerta. O mesmo saldo nunca é usado duas vezes.
 - Pagamentos são sempre da parcela inteira (sem pagamento parcial no MVP).
+
+## Lucro das vendas (resultado comercial — separado do caixa)
+
+Código em `src/lib/profit.ts` (testado em `profit.test.ts`).
+
+- Receita = quantidade × preço unitário − desconto (é o valor que se parcela). Custo = quantidade × custo unitário. **Lucro bruto = receita − custo**. Margem = lucro ÷ receita × 100 (só com receita positiva). Tudo em centavos inteiros.
+- Preço abaixo do custo: aviso discreto de prejuízo, sem impedir a venda.
+- **Vendas antigas sem custo** aparecem como “Custo não informado” e ficam **fora** do lucro e da margem (nunca viram custo zero). O custo pode ser informado/editado no detalhe da venda.
+- O lucro do mês considera as vendas **feitas** no mês, recebidas ou não. **Boletos não entram no lucro** (são saídas de caixa; um pedido pode ter produtos ainda não vendidos), então o custo nunca é descontado duas vezes. É lucro **bruto**, não líquido.
+- Painéis: Início (lucro bruto, margem, vendido, custo) e Controle mensal (evolução mês a mês).
+- Migração: `supabase/migrations/20261110000004_profit_fields.sql` (reversível em `supabase/rollbacks/`). Veja `docs/MIGRACAO-LUCRO.md`.
+
+## Desenvolvimento local sem tocar no banco real
+
+```bash
+npm run test:migration    # testa as migrações em um Postgres isolado (PGlite, em memória)
+npm run build:mock && npm run preview:mock   # app completo com backend falso em http://127.0.0.1:4174
+```
+
+## Design
+
+Paleta rosa (`#FFFDFC`, `#F8E9EE`, `#E9A1B6`, `#C76588`, `#713D54`, `#30232B`), títulos em DM Serif Display e texto em DM Sans, ambas **auto-hospedadas** (sem requisições externas) via `@fontsource`. Tokens em `src/index.css`.
 
 ## Rodar localmente
 

@@ -91,7 +91,7 @@ function Inner({ editing, refresh, navigate, toast }: {
           {err && <ErrorBox>{err}</ErrorBox>}
           <Button type="submit" full loading={busy} className="min-h-14 text-lg">{editing ? 'Salvar alterações' : 'Salvar boleto'}</Button>
           {editing && !editing.paid_at && (
-            <Button full variant="ghost" className="text-red-600" onClick={() => setConfirmDel(true)}>Excluir boleto</Button>
+            <Button full variant="ghost" className="text-red-700" onClick={() => setConfirmDel(true)}>Excluir boleto</Button>
           )}
         </form>
       </Page>

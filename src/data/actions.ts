@@ -33,12 +33,50 @@ export interface NewSale {
   client_id: string
   description: string
   sale_date: ISODate
+  quantity: number
+  /** null = custo nao informado */
+  unit_cost_cents: number | null
+  unit_price_cents: number
+  discount_cents: number
+  first_due_date: ISODate
+  /** Parcelas calculadas sobre (quantidade x preco - desconto). */
+  installments: InstallmentDraft[]
+}
+
+/** Venda com custo, preco, quantidade e desconto (o total e calculado e validado no banco). */
+export async function createSale(s: NewSale): Promise<string> {
+  const { data, error } = await supabase.rpc('create_sale_with_profit', {
+    p_client_id: s.client_id,
+    p_description: s.description,
+    p_sale_date: s.sale_date,
+    p_quantity: s.quantity,
+    p_unit_cost_cents: s.unit_cost_cents,
+    p_unit_price_cents: s.unit_price_cents,
+    p_discount_cents: s.discount_cents,
+    p_first_due_date: s.first_due_date,
+    p_installments: s.installments,
+  })
+  fail(error)
+  return data as string
+}
+
+/** Corrige custo (e quantidade, quando a venda nao tem preco unitario) de uma venda ja salva. O total nao muda. */
+export async function updateSaleCost(id: string, patch: { unit_cost_cents: number | null; quantity?: number }) {
+  const { error } = await supabase.from('sales').update(patch).eq('id', id)
+  fail(error)
+}
+
+export interface LegacySale {
+  client_id: string
+  description: string
+  sale_date: ISODate
   total_cents: number
   first_due_date: ISODate
   installments: InstallmentDraft[]
 }
 
-export async function createSale(s: NewSale): Promise<string> {
+/** Venda so com o total (importador da planilha): custo fica "nao informado". */
+export async function createSaleTotalOnly(s: LegacySale): Promise<string> {
   const { data, error } = await supabase.rpc('create_sale', {
     p_client_id: s.client_id,
     p_description: s.description,

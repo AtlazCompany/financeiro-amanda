@@ -48,3 +48,39 @@ URL: https://financeiro-amanda.onrender.com (Static Site, deploy `live`, commit 
 - Com sessão: dashboard carrega do banco real; criar cliente → recarregar a página em `#/clientes` mantém sessão e dados; excluir cliente funciona. Dados de teste removidos (banco vazio).
 - Rotas usam HashRouter: atualizar a página em qualquer tela não dá 404 (o servidor do Render devolvia 404 para `/clientes` quando se usava caminho comum).
 - Repositório: https://github.com/AtlazCompany/financeiro-amanda (tornado **público** a pedido, para o Render conseguir clonar; não contém senhas nem chaves privadas).
+
+---
+
+# Rodada 2 — Lucro + redesign rosa (branch `feature/lucro-redesign`, 10/11/2026)
+
+**Nada disto foi aplicado na produção.** Banco real e site publicado continuam como antes; a migração 004 foi testada só em Postgres isolado.
+
+| Suíte | Resultado |
+|---|---|
+| `npm test` — regras financeiras (32) + lucro (20) | **52/52 passaram** |
+| `npm run test:migration` — migração 004 em Postgres isolado (PGlite) | **21/21 passaram** |
+| `tsc -b` + `vite build` (produção) e build com backend falso | sem erros |
+
+## Fórmulas de lucro (`src/lib/profit.test.ts`)
+- Exemplo do enunciado: custo R$ 16 → venda R$ 30 = lucro R$ 14,00, margem 46,67%.
+- Quantidade 3; desconto (2 × R$ 30 − R$ 10 = R$ 50 → lucro R$ 18 e 36%); prejuízo (preço < custo) com aviso e margem negativa; lucro zero não é prejuízo; margem nula com receita ≤ 0; desconto maior que o valor é sinalizado.
+- Parcelamento com centavos **sobre o valor após desconto** (3 × R$ 30 − R$ 10 = R$ 80 em 3x → 26,67 + 26,67 + 26,66).
+- Vendas antigas (custo `null`) ⇒ sem lucro e sem margem; custo zero informado é diferente de “não informado”.
+- Indicadores mensais (lucro, custo, margem, vendas sem custo), mês sem vendas, evolução do ano.
+- **Boletos não reduzem o lucro**: lucro idêntico com/sem boleto; o boleto só sai do caixa (sem dupla contagem).
+- Regressão de caixa, projeção de boletos, clientes e parcelas (os 32 testes anteriores seguem verdes).
+
+## Migração (Postgres isolado)
+Dados anteriores preservados (id, total, parcelas); vendas antigas ficam com custo `NULL`; `create_sale` antiga continua funcionando (app em produção não quebra); nova função valida soma das parcelas, desconto e quantidade; constraints (custo negativo; total ≠ qtd × preço − desconto); custo editável e removível; RLS isola usuárias; `anon` sem acesso; **rollback** remove só as colunas/função novas e mantém vendas; migração reaplicável.
+
+## Interface (build com backend falso, Chrome, 390 px / 360 px / desktop)
+- Formulário de venda em 4 etapas com lucro ao vivo: R$ 16 → R$ 30 = **R$ 14,00 / 46,67%**; quantidade, desconto, prejuízo (aviso, não bloqueia), custo em branco (“Custo não informado”), parcelas 16,67/16,67/16,66.
+- Venda salva: detalhe com lucro/margem/quantidade/preço/desconto/custo; lista de vendas com lucro por venda; **venda antiga** mostra “Custo não informado” e permite informar/editar custo (total e parcelas não mudam).
+- Início: lucro bruto, margem, vendido, custo do mês **separados** do “Dinheiro disponível”; conferido contra o cálculo manual (R$ 186,00 / 45,59% no cenário de teste). Controle mensal com lucro por mês e no ano.
+- **Contraste (WCAG AA, medido no DOM)**: 0 textos abaixo de 4,5:1 (3:1 em texto grande) em 10 telas, incluindo login; corrigidos 3 casos (subtítulo, cinza claro, vermelho).
+- Responsividade: 13 telas em 360 e 390 px sem rolagem horizontal; fontes de campos ≥ 16 px; alvos ≥ 44 px (parcelas viram 3 colunas abaixo de 370 px).
+- Segurança: sem segredos no repositório (`git grep`); só chave pública no frontend; RLS inalterada. `npm audit`: aviso conhecido da biblioteca `xlsx` (usada só na importação opcional, com arquivo escolhido pela própria usuária; sem correção publicada).
+
+## Pendências desta rodada
+- Homologação em **iPhone físico/Safari** (teclado, safe areas, seletor de datas, modo standalone) continua pendente.
+- Aplicar a migração 004 e publicar exigem autorização (ver `docs/MIGRACAO-LUCRO.md`).
