@@ -9,6 +9,8 @@ interface AuthState {
   signOut: () => Promise<void>
   /** Envia o link de recuperacao/definicao de senha. Resposta sempre generica (nao revela se o e-mail existe). */
   requestPasswordReset: (email: string) => Promise<string | null>
+  /** Consome o codigo de uso unico do link de primeiro acesso (so quando a usuaria toca no botao). */
+  verifyAccessCode: (tokenHash: string) => Promise<string | null>
   /** Define a nova senha da usuaria logada (via link de recuperacao) e encerra as outras sessoes. */
   updatePassword: (password: string) => Promise<string | null>
 }
@@ -45,6 +47,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (/fetch|network/i.test(error.message)) return 'Sem conexão com a internet.'
     return null // qualquer outro caso: resposta generica, sem revelar se o e-mail existe
   }
+  const verifyAccessCode = async (tokenHash: string) => {
+    const { error } = await supabase.auth.verifyOtp({ token_hash: tokenHash, type: 'recovery' })
+    if (!error) return null
+    if (/fetch|network/i.test(error.message)) return 'Sem conexão com a internet.'
+    return 'Este link expirou ou já foi usado. Peça um novo link de acesso.'
+  }
   const updatePassword = async (password: string) => {
     const { error } = await supabase.auth.updateUser({ password })
     if (error) {
@@ -57,7 +65,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return null
   }
 
-  return <Ctx.Provider value={{ session, loading, signIn, signOut, requestPasswordReset, updatePassword }}>{children}</Ctx.Provider>
+  return <Ctx.Provider value={{ session, loading, signIn, signOut, requestPasswordReset, verifyAccessCode, updatePassword }}>{children}</Ctx.Provider>
 }
 
 export function useAuth(): AuthState {

@@ -5,6 +5,8 @@ import { Button, ErrorBox, Field, inputCls } from '../components/Ui'
 import { isConfigured } from '../lib/supabase'
 
 type Mode = 'login' | 'reset' | 'sent'
+/** Recuperacao por e-mail so funciona com SMTP configurado no Supabase (VITE_EMAIL_RESET=1). */
+const EMAIL_RESET = import.meta.env.VITE_EMAIL_RESET === '1'
 
 export default function Login() {
   const { session, signIn, requestPasswordReset } = useAuth()
@@ -79,9 +81,13 @@ export default function Login() {
             {mode === 'reset' && <p className="text-sm text-stone-600">Digite o e-mail cadastrado. Enviaremos um link para você criar a sua senha.</p>}
             {err && <ErrorBox>{err}</ErrorBox>}
             <Button type="submit" full loading={busy} className="min-h-14 text-lg">{mode === 'login' ? 'Entrar' : 'Enviar link'}</Button>
-            <Button full variant="ghost" onClick={() => { setMode(mode === 'login' ? 'reset' : 'login'); setErr(null) }}>
-              {mode === 'login' ? 'Esqueci minha senha / primeiro acesso' : 'Voltar ao login'}
-            </Button>
+            {EMAIL_RESET ? (
+              <Button full variant="ghost" onClick={() => { setMode(mode === 'login' ? 'reset' : 'login'); setErr(null) }}>
+                {mode === 'login' ? 'Esqueci minha senha / primeiro acesso' : 'Voltar ao login'}
+              </Button>
+            ) : (
+              <p className="px-2 text-center text-sm text-stone-600">Primeiro acesso ou esqueceu a senha? Peça um novo link de acesso para quem administra o sistema.</p>
+            )}
           </>
         )}
       </form>

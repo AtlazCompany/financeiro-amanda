@@ -6,6 +6,7 @@ import { AppShell } from './components/Layout'
 import { Spinner, ToastProvider } from './components/Ui'
 import Login from './pages/Login'
 import NewPassword from './pages/NewPassword'
+import Activate from './pages/Activate'
 import Home from './pages/Home'
 import Sales from './pages/Sales'
 import SaleForm from './pages/SaleForm'
@@ -37,6 +38,7 @@ export default function App() {
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/nova-senha" element={<NewPassword />} />
+            <Route path="/ativar" element={<Activate />} />
             <Route element={<Protected><AppShell /></Protected>}>
               <Route index element={<Home />} />
               <Route path="vendas" element={<Sales />} />

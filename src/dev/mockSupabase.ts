@@ -184,6 +184,11 @@ export const supabase = {
       log.push({ email, redirectTo: opts?.redirectTo ?? null }); localStorage.setItem('mock-reset-requests', JSON.stringify(log))
       return { error: null }
     },
+    verifyOtp: async ({ token_hash }: { token_hash: string; type: string }) => {
+      if (token_hash === 'expired') return { error: { message: 'Token has expired or is invalid' } }
+      localStorage.removeItem('mock-logout'); notify()
+      return { error: null }
+    },
     setSession: async ({ access_token }: { access_token: string; refresh_token: string }) => {
       if (access_token === 'expired') return { error: { message: 'invalid' } }
       localStorage.removeItem('mock-logout'); notify()
