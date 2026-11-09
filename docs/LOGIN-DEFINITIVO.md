@@ -1,6 +1,6 @@
 # Login definitivo da Amanda — ativação por link (sem SMTP)
 
-**Status (10/11/2026): preparado e validado em ambiente isolado. Nada foi alterado na produção** (sem deploy, sem troca de e-mail, sem link gerado). Aguarda autorização expressa.
+**Status (10/11/2026): deploy publicado e troca de e-mail EXECUTADA em produção (com autorização expressa).** Conta única, mesmo ID `f0c31479-…`, e-mail definitivo, senha e e-mail provisórios invalidados, 0 sessões, 1 e-mail autorizado, dados e configurações intactos. **Falta apenas gerar o link** (`scripts/primeiro-acesso.ps1 -AntiPrevia`) e a Amanda criar a senha.
 O e-mail definitivo fica só no arquivo local `supabase/local/change-email.amanda.sql` (ignorado pelo Git; o repositório é público).
 
 ## Como funciona
