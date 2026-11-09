@@ -34,3 +34,37 @@ export async function prepareFirstAccessLink({ admin, email, expectedUserId, sit
   if (!p.action_link) throw new Error('O Supabase nao devolveu o action_link.')
   return { link: p.action_link, userId: matches[0].id }
 }
+
+/**
+ * Cliente minimo do Supabase Auth Admin por HTTPS direto (sem @supabase/supabase-js e sem Realtime/WebSocket,
+ * entao funciona no Node 20). Usa so duas rotas oficiais:
+ *   GET  /auth/v1/admin/users           (confere a conta)
+ *   POST /auth/v1/admin/generate_link   (gera o link de recuperacao; nao envia e-mail)
+ * Os erros trazem apenas o codigo HTTP: nunca a chave, o corpo da resposta ou o link.
+ */
+export function makeAdminApi({ url, key, fetchImpl = globalThis.fetch, timeoutMs = 20000 }) {
+  const base = String(url).replace(/\/+$/, '')
+  const headers = { apikey: key, Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' }
+  const call = async (path, init) => {
+    try {
+      const r = await fetchImpl(`${base}${path}`, { ...init, headers, signal: AbortSignal.timeout(timeoutMs) })
+      if (!r.ok) return { error: { status: r.status } }
+      return { json: await r.json() }
+    } catch {
+      return { error: { status: 'rede' } }
+    }
+  }
+  return {
+    async listUsers() {
+      const { json, error } = await call('/auth/v1/admin/users?page=1&per_page=1000', { method: 'GET' })
+      return error ? { error } : { data: { users: json?.users ?? [] } }
+    },
+    async generateLink({ type, email, options }) {
+      const body = { type, email, ...(options?.redirectTo ? { redirect_to: options.redirectTo } : {}) }
+      const { json, error } = await call('/auth/v1/admin/generate_link', { method: 'POST', body: JSON.stringify(body) })
+      if (error) return { error }
+      const props = json?.properties ?? json // a API devolve os campos no topo; alguns clientes aninham em "properties"
+      return { data: { properties: { action_link: props?.action_link, hashed_token: props?.hashed_token } } }
+    },
+  }
+}
