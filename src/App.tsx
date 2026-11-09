@@ -5,6 +5,7 @@ import { DataProvider } from './data/DataContext'
 import { AppShell } from './components/Layout'
 import { Spinner, ToastProvider } from './components/Ui'
 import Login from './pages/Login'
+import NewPassword from './pages/NewPassword'
 import Home from './pages/Home'
 import Sales from './pages/Sales'
 import SaleForm from './pages/SaleForm'
@@ -35,6 +36,7 @@ export default function App() {
         <ToastProvider>
           <Routes>
             <Route path="/login" element={<Login />} />
+            <Route path="/nova-senha" element={<NewPassword />} />
             <Route element={<Protected><AppShell /></Protected>}>
               <Route index element={<Home />} />
               <Route path="vendas" element={<Sales />} />
