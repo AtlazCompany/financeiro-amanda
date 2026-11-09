@@ -27,7 +27,7 @@ Depois de (1), me avise: eu confiro sozinho com `npm run verify:login` (deve mos
 ## Prova de entrega (antes de trocar a conta)
 
 Só é possível enviar para a Amanda de duas formas, ambas com ação real/consentida:
-- **Recomendado:** depois de configurar o SMTP, use o botão/endpoint de *teste de envio* do próprio provedor (Resend/Brevo/Gmail) para `amandamoraesx01@…` e peça a ela que confirme o recebimento (veja também o spam). Nada muda na conta.
+- **Recomendado:** depois de configurar o SMTP, use o botão/endpoint de *teste de envio* do próprio provedor (Resend/Brevo/Gmail) para o e-mail definitivo da Amanda e peça a ela que confirme o recebimento (veja também o spam). Nada muda na conta.
 - Alternativa: autorizar o envio do e-mail de recuperação logo após a troca (passo 5 abaixo) — se não chegar, o rollback devolve a conta ao estado anterior.
 
 ## Ordem da publicação (depois da autorização expressa)
