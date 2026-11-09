@@ -1,46 +1,57 @@
-# Login definitivo da Amanda — preparação e passo a passo
+# Login definitivo da Amanda — preparação, verificações e passo a passo
 
-**Status: preparado e validado em ambiente isolado. NADA foi alterado na conta de produção.**
-Aguardando: (1) o e-mail real da Amanda, (2) a configuração de e-mail no Supabase (abaixo) e (3) autorização expressa.
+**Status (10/11/2026): tudo preparado e validado em ambiente isolado. NADA foi alterado na produção** (nem deploy, nem migração, nem conta). Falta: 2 configurações manuais no painel Supabase, a prova de entrega do e-mail e a autorização expressa.
 
-## Situação atual (consulta somente-leitura em produção)
+O e-mail definitivo foi informado e está **somente** no arquivo local `supabase/local/change-email.amanda.sql` (ignorado pelo Git; o repositório é público e não contém o e-mail pessoal).
 
-- 1 usuária: `f0c31479-52ed-4e6c-b9a6-6e789a71e54e`, e-mail provisório fictício `amanda@financeiro-amanda.app`, e-mail confirmado, 1 identidade (`email`), 1 perfil, 1 linha em `financial_settings`. Nenhum cliente/venda/boleto ainda.
-- `allowed_emails`: só o e-mail provisório. Gatilho `block_unlisted_signups` ativo (cadastro público bloqueado).
-- A senha provisória foi mostrada numa conversa — **deve ser invalidada** (o script faz isso).
+## Verificado em produção (somente leitura, sem efeitos)
 
-## O que foi preparado
-
-| Item | Arquivo |
+| Item | Resultado |
 |---|---|
-| Troca de e-mail (mesmo id, mesma conta) + invalida senha provisória + encerra sessões + ajusta `allowed_emails` | `supabase/change-email.sql` |
-| Reversão | `supabase/rollbacks/change-email.down.sql` |
-| Teste da troca em Postgres isolado (PGlite) | `npm run test:email-swap` (23 verificações) |
-| Telas de recuperação: “Esqueci minha senha / primeiro acesso” e “Crie a sua senha” (link do e-mail) | `src/pages/Login.tsx`, `src/pages/NewPassword.tsx`, `src/lib/authLink.ts`, `src/lib/password.ts` |
+| Conta provisória | 1 usuária (`f0c31479-52ed-4e6c-b9a6-6e789a71e54e`), e-mail fictício, 1 identidade, 1 perfil, 1 configuração; sem dados financeiros ainda |
+| `allowed_emails` / cadastro público | só o e-mail provisório; cadastro de qualquer outro e-mail → “Cadastro nao permitido” |
+| Recuperação para e-mail inexistente | resposta 200 idêntica (não revela quem existe) |
+| **Site URL do Auth** | ❌ ainda `http://localhost:3000` (padrão) |
+| **Redirect URLs** | ❌ o endereço do site **não** está permitido (o link cairia em `localhost:3000`) |
+| **SMTP** | ⚠️ não dá para ler daqui. O envio padrão do Supabase só entrega a e-mails de membros do time e tem limite baixo/hora |
 
-Ninguém (nem a equipe técnica) precisa conhecer a senha: a Amanda recebe o link no e-mail dela e **ela mesma** cria a senha (mínimo 10 caracteres). A senha não é registrada, exibida nem salva em arquivos. Ao definir a nova senha, as outras sessões são encerradas.
+(A Site URL e a lista de redirecionamentos são detectadas sem efeito colateral: `GET /auth/v1/verify?token=invalido` redireciona para a Site URL — ou para o `redirect_to`, se permitido. O script `npm run verify:login` faz essa conferência.)
 
-## Passo a passo da publicação (depois da autorização)
+## Intervenções manuais indispensáveis (painel Supabase → Authentication)
 
-1. **Supabase → Authentication → URL Configuration**: *Site URL* = `https://financeiro-amanda.onrender.com` e, em *Redirect URLs*, `https://financeiro-amanda.onrender.com/**`. (Sem isso o link do e-mail abre no endereço errado.)
-2. **Supabase → Authentication → SMTP Settings**: configurar um SMTP próprio (ex.: Resend/Brevo/Gmail com senha de app). O envio padrão do Supabase só entrega para e-mails de membros do time e é limitado a poucos por hora — **não entregaria para a Amanda**.
-3. Publicar este branch (login/recuperação) na `master` (Render).
-4. Rodar `supabase/change-email.sql` no SQL Editor com o e-mail real (uma única vez; ele aborta sem alterar nada se algo estiver errado).
-5. Amanda abre o app → **Esqueci minha senha / primeiro acesso** → recebe o link → cria a senha.
-6. Conferir (checklist abaixo).
+1. **URL Configuration** → *Site URL*: `https://financeiro-amanda.onrender.com`; *Redirect URLs*: `https://financeiro-amanda.onrender.com/**`.
+2. **SMTP Settings** → ativar SMTP próprio (Resend, Brevo ou Gmail com senha de app), remetente reconhecível (ex.: “Financeiro Amanda”). Sem isso o e-mail não chega à Amanda.
 
-## Checklist de verificação
+Depois de (1), me avise: eu confiro sozinho com `npm run verify:login` (deve mostrar 2 PASS nas duas primeiras linhas).
 
-- [ ] Login com o e-mail novo e a senha criada pela Amanda funciona; **sair** (Ajustes → Sair) e entrar de novo funcionam.
-- [ ] O e-mail provisório + senha provisória **não entram mais** (“E-mail ou senha incorretos”).
-- [ ] `select email from public.allowed_emails;` → só o e-mail real.
-- [ ] `select id, email from auth.users;` → mesmo id `f0c31479-…`, e-mail real.
-- [ ] Tentar cadastrar outro e-mail pela API → “Cadastro nao permitido”.
-- [ ] “Esqueci minha senha” com o e-mail real envia o link; link usado duas vezes ou vencido mostra “Este link expirou…”.
-- [ ] Dados financeiros e configurações iguais aos de antes.
+## Prova de entrega (antes de trocar a conta)
 
-## Pendências / riscos
+Só é possível enviar para a Amanda de duas formas, ambas com ação real/consentida:
+- **Recomendado:** depois de configurar o SMTP, use o botão/endpoint de *teste de envio* do próprio provedor (Resend/Brevo/Gmail) para `amandamoraesx01@…` e peça a ela que confirme o recebimento (veja também o spam). Nada muda na conta.
+- Alternativa: autorizar o envio do e-mail de recuperação logo após a troca (passo 5 abaixo) — se não chegar, o rollback devolve a conta ao estado anterior.
 
-- Depende de SMTP configurado e das URLs do Supabase (ações no painel; não há ferramenta para fazê-las daqui).
-- Em iPhone, abrir o link do e-mail abre o Safari; depois, ao abrir o app pela tela de início, pode pedir o login uma vez.
+## Ordem da publicação (depois da autorização expressa)
+
+1. Painel: itens 1 e 2 acima + prova de entrega.
+2. Publicar a branch `feature/login-definitivo` na `master` (Render) — inclui “Esqueci minha senha / primeiro acesso” e “Crie a sua senha”.
+3. Rodar `supabase/local/change-email.amanda.sql` no SQL Editor (ou pelo assistente, com autorização). Ele é transacional: valida tudo e só então troca o e-mail **mantendo o mesmo ID**, invalida a senha provisória (hash aleatório descartado), encerra todas as sessões, autoriza só o e-mail definitivo e remove o provisório de `allowed_emails`.
+4. Amanda abre o app → **Esqueci minha senha / primeiro acesso** → digita o e-mail → recebe o link → **cria a própria senha** (mín. 10 caracteres). Ninguém mais conhece a senha; ela não passa por mim, arquivos ou logs.
+5. Conferir: `OLD_EMAIL=… OLD_PASS=… npm run verify:login` (provisório + senha antiga **não** entram; cadastro público bloqueado) e, com autorização, `NEW_EMAIL=… SEND_RECOVERY=1 …` para disparar o e-mail de recuperação.
+
+## Checklist final
+
+- [ ] Login com o e-mail definitivo e a senha criada pela Amanda; sair (Ajustes → Sair) e entrar de novo.
+- [ ] E-mail provisório + senha provisória: “E-mail ou senha incorretos”.
+- [ ] `select email from public.allowed_emails;` → só o e-mail definitivo.
+- [ ] `select id, email from auth.users;` → mesmo id `f0c31479-…`, e-mail definitivo.
+- [ ] Dados financeiros e configurações iguais aos de antes (contagens e saldo inicial).
+- [ ] “Esqueci minha senha” envia o link; link usado duas vezes/vencido mostra “Este link expirou…”.
+
+## Reversão
+
+`supabase/rollbacks/change-email.down.sql` devolve o e-mail provisório (mesmo ID) e a autorização; a senha antiga não é restaurada (use o fluxo de recuperação).
+
+## Observações
+
+- iPhone: o link do e-mail abre no Safari; ao abrir pelo ícone da tela de início pode ser preciso entrar uma vez.
 - Homologação em aparelho físico segue pendente.

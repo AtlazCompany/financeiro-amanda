@@ -12,6 +12,7 @@
     "test": "vitest run",
     "test:migration": "node scripts/migration-check.mjs",
     "test:email-swap": "node scripts/email-swap-check.mjs",
+    "verify:login": "node --experimental-websocket scripts/post-swap-verify.mjs",
     "build:mock": "vite build -c vite.mock.config.ts",
     "preview:mock": "vite preview -c vite.mock.config.ts --port 4174",
     "lint": "oxlint",

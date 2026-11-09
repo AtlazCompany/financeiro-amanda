@@ -108,3 +108,9 @@ Interface (backend de teste local, credencial **falsa**): senha errada → “E-
 Produção (somente leitura / sem efeito): `recover` para e-mail inexistente responde 200 sem revelar nada; cadastro público segue bloqueado.
 
 Não verificável daqui (depende de ações no painel Supabase): Site URL/Redirect URLs e SMTP — ver `docs/LOGIN-DEFINITIVO.md`.
+
+## Rodada 4 — preparação final do login definitivo (10/11/2026) — sem alterar produção
+
+- `email-swap-check` ampliado: **44 verificações** (modelo + o **arquivo final local** com o e-mail definitivo, executado sem alterações em banco isolado): mesmo id, dados intactos, senha provisória e provisório invalidados, sessões encerradas, `allowed_emails` só com o e-mail novo, **isolamento (RLS)** — a usuária continua vendo tudo e outra usuária não vê nem altera nada —, entradas inválidas abortam, rollback restaura.
+- Novo `npm run verify:login` (somente API pública): detecta Site URL/Redirect URLs sem efeito colateral. Resultado em produção hoje: **Site URL = `http://localhost:3000` e redirect do site não permitido (2 FAIL)** — exige a configuração manual descrita em `docs/LOGIN-DEFINITIVO.md`; cadastro público bloqueado e recuperação genérica (PASS).
+- Branch `feature/login-definitivo` contém a `master` (merge fast-forward possível); 60 testes unitários, migração isolada e build de produção passando.
