@@ -53,7 +53,7 @@ URL: https://financeiro-amanda.onrender.com (Static Site, deploy `live`, commit 
 
 # Rodada 2 — Lucro + redesign rosa (branch `feature/lucro-redesign`, 10/11/2026)
 
-**Nada disto foi aplicado na produção.** Banco real e site publicado continuam como antes; a migração 004 foi testada só em Postgres isolado.
+Validado primeiro em ambiente isolado; depois, **com autorização**, a migração 004 foi aplicada no Supabase e a `master` publicada no Render (commit `5fef25f`).
 
 | Suíte | Resultado |
 |---|---|
@@ -81,6 +81,10 @@ Dados anteriores preservados (id, total, parcelas); vendas antigas ficam com cus
 - Responsividade: 13 telas em 360 e 390 px sem rolagem horizontal; fontes de campos ≥ 16 px; alvos ≥ 44 px (parcelas viram 3 colunas abaixo de 370 px).
 - Segurança: sem segredos no repositório (`git grep`); só chave pública no frontend; RLS inalterada. `npm audit`: aviso conhecido da biblioteca `xlsx` (usada só na importação opcional, com arquivo escolhido pela própria usuária; sem correção publicada).
 
+## Produção (após autorização) — 09/11/2026
+- Migração 004 aplicada; advisors de segurança sem novos alertas; `create_sale_with_profit` e `create_sale` (antiga) funcionam; `UPDATE quantity` que quebraria o total é rejeitado pela constraint.
+- Site publicado (`financeiro-amanda.onrender.com`): novo tema, `theme-color` #F8E9EE, ícones rosa e manifesto atualizados (HTTP 200).
+- Teste na URL real: venda com custo R$ 16 / preço R$ 30 em 3x → lucro R$ 14,00 e 46,67% ao vivo, no detalhe e no Início (vendido R$ 30, custo R$ 16); venda e cliente excluídos em seguida (banco vazio).
+
 ## Pendências desta rodada
 - Homologação em **iPhone físico/Safari** (teclado, safe areas, seletor de datas, modo standalone) continua pendente.
-- Aplicar a migração 004 e publicar exigem autorização (ver `docs/MIGRACAO-LUCRO.md`).

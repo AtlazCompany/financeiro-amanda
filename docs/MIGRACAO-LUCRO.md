@@ -1,6 +1,6 @@
 # Migração do controle de lucro (004) — como aplicar e reverter
 
-**Status: NÃO aplicada na produção.** Foi validada apenas em um Postgres isolado (`npm run test:migration`).
+**Status: APLICADA na produção em 09/11/2026 (com autorização expressa) e publicada no Render.** Antes disso foi validada em um Postgres isolado (`npm run test:migration`). Após aplicar: teste de fumaça com a conta da Amanda (venda com custo/preço/desconto, venda antiga pela função antiga, constraint de total) e limpeza dos registros de teste; banco permanece vazio.
 
 ## O que ela faz (incremental, sem apagar nada)
 
