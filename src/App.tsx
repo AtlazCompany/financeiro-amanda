@@ -1,5 +1,5 @@
 import { lazy, Suspense, type ReactNode } from 'react'
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
+import { HashRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { AuthProvider, useAuth } from './data/AuthContext'
 import { DataProvider } from './data/DataContext'
 import { AppShell } from './components/Layout'
@@ -29,7 +29,8 @@ function Protected({ children }: { children: ReactNode }) {
 
 export default function App() {
   return (
-    <BrowserRouter>
+    // HashRouter: funciona em qualquer hospedagem estatica (atualizar a pagina nunca da 404) e no modo standalone do iPhone.
+    <HashRouter>
       <AuthProvider>
         <ToastProvider>
           <Routes>
@@ -55,6 +56,6 @@ export default function App() {
           </Routes>
         </ToastProvider>
       </AuthProvider>
-    </BrowserRouter>
+    </HashRouter>
   )
 }

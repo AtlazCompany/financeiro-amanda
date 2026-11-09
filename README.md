@@ -1,4 +1,4 @@
-# Financeiro Amanda
+﻿# Financeiro Amanda
 
 Sistema web (PWA) para a revendedora Amanda controlar **clientes, vendas parceladas, boletos do Boticário e caixa** — pensado para o **iPhone (Safari)**.
 
@@ -51,7 +51,7 @@ Teste de isolamento/segurança: `node --experimental-websocket scripts/rls-check
 
 - Build: `npm ci && npm run build` · Publish dir: `dist`.
 - Variáveis: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`.
-- Rotas do React: o build cria `dist/404.html` (cópia do `index.html`) e o `render.yaml` define o rewrite `/* → /index.html` para quem usar Blueprint.
+- Rotas: o app usa **HashRouter** (`/#/clientes`), então atualizar a página nunca dá 404, sem configuração de servidor. (O build ainda gera `dist/404.html`, e o `render.yaml` traz o rewrite para quem usar Blueprint.)
 
 ## Importar a planilha (opcional)
 
