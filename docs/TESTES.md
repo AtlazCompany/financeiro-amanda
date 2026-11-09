@@ -38,3 +38,13 @@ Executado pela automação do navegador sobre o build real e o banco real:
 - **Não houve teste em iPhone físico nem no Safari real.** Safe areas, teclado virtual, seletor de datas nativo do iOS, “Adicionar à Tela de Início” e o modo standalone foram implementados conforme as boas práticas do iOS (viewport-fit=cover, `env(safe-area-inset-*)`, `visualViewport`, `inputMode="numeric"`, `type="date"`, meta tags Apple, ícone 180 px, manifesto), mas **precisam de homologação no aparelho da Amanda**.
 - O **formulário de login não foi preenchido pela automação** (política de não digitar senhas em campos). O login por e-mail/senha foi validado via API e a sessão persistente, injetando uma sessão válida no navegador. Faça um login manual na primeira abertura.
 - Não há modo offline (decisão do projeto).
+
+## Produção (Render) — 09/11/2026
+
+URL: https://financeiro-amanda.onrender.com (Static Site, deploy `live`, commit `7e1ff32`).
+
+- `/`, `/manifest.json`, `/sw.js`, `/apple-touch-icon.png`, `/icon-192.png`, `/icon-maskable-512.png` respondem 200 com o tipo correto; meta tags Apple e `viewport-fit=cover` presentes no HTML publicado.
+- Sem sessão, a rota protegida redireciona para `#/login`.
+- Com sessão: dashboard carrega do banco real; criar cliente → recarregar a página em `#/clientes` mantém sessão e dados; excluir cliente funciona. Dados de teste removidos (banco vazio).
+- Rotas usam HashRouter: atualizar a página em qualquer tela não dá 404 (o servidor do Render devolvia 404 para `/clientes` quando se usava caminho comum).
+- Repositório: https://github.com/AtlazCompany/financeiro-amanda (tornado **público** a pedido, para o Render conseguir clonar; não contém senhas nem chaves privadas).
